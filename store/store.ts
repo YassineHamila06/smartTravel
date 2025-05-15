@@ -12,6 +12,7 @@ import { API_SURVEY } from "../services/SURVEY-API";
 import { API_QUESTION } from "../services/QUESTION-API";
 import { API_RESPONSE } from "../services/RESPONSE-API";
 import { API_REWARD } from "../services/REWARD-API";
+import { dashboardApi } from "../services/DASHBOARD-API";
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     [API_QUESTION.reducerPath]: API_QUESTION.reducer,
     [API_RESPONSE.reducerPath]: API_RESPONSE.reducer,
     [API_REWARD.reducerPath]: API_REWARD.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -39,7 +41,8 @@ export const store = configureStore({
       API_SURVEY.middleware,
       API_QUESTION.middleware,
       API_RESPONSE.middleware,
-      API_REWARD.middleware
+      API_REWARD.middleware,
+      dashboardApi.middleware
     ),
 });
 

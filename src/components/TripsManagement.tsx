@@ -106,8 +106,6 @@ const TripsManagement = () => {
     if (!trip.startDate.trim()) newErrors.startDate = "Start date is required";
     if (!trip.endDate || new Date(trip.endDate) <= new Date(trip.startDate))
       newErrors.endDate = "End date must be after start date";
-    if (!tripImage && (!trip.image || trip.image.trim() === ""))
-      newErrors.image = "Please upload an image";
     if (trip.tripType.trim() === "")
       newErrors.tripType = "Trip type is required";
 
@@ -265,7 +263,7 @@ const TripsManagement = () => {
     price: number;
     isAvailable: boolean;
     reduction: number;
-    image: string;
+    image?: any;
     description: string;
     tripType: string;
   };
@@ -385,7 +383,6 @@ const TripsManagement = () => {
               border border-gray-300 rounded-md shadow-sm
               focus:outline-none focus:ring-turquoise-500 focus:border-turquoise-500"
               onChange={handleImageChange}
-              required={mode === "add" || !trip.image}
             />
           </div>
 

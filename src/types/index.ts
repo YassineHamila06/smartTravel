@@ -6,7 +6,7 @@ export interface Trip {
   price: number;
   isAvailable: boolean;
   reduction: number;
-  image: string;
+  image?: any;
   description: string;
   tripType: string;
 }
