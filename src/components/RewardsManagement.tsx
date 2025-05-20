@@ -24,6 +24,277 @@ interface Reward {
   updatedAt?: string;
 }
 
+// Reward Form component moved outside the RewardsManagement component
+interface RewardFormProps {
+  onSubmit: (e: React.FormEvent) => void;
+  mode: "add" | "edit";
+  title: string;
+  setTitle: (value: string) => void;
+  description: string;
+  setDescription: (value: string) => void;
+  pointsRequired: number;
+  setPointsRequired: (value: number) => void;
+  category: string;
+  setCategory: (value: string) => void;
+  image: File | null;
+  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  discountPercentage: number;
+  setDiscountPercentage: (value: number) => void;
+  eventId: string;
+  setEventId: (value: string) => void;
+  errors: Record<string, string>;
+  currentReward: Reward | null;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  availableCategories: string[];
+  events: any[];
+  setIsAddModalOpen: (value: boolean) => void;
+  setIsEditModalOpen: (value: boolean) => void;
+}
+
+const RewardForm: React.FC<RewardFormProps> = ({
+  onSubmit,
+  mode,
+  title,
+  setTitle,
+  description,
+  setDescription,
+  pointsRequired,
+  setPointsRequired,
+  category,
+  setCategory,
+  image,
+  handleImageChange,
+  discountPercentage,
+  setDiscountPercentage,
+  eventId,
+  setEventId,
+  errors,
+  currentReward,
+  fileInputRef,
+  availableCategories,
+  events,
+  setIsAddModalOpen,
+  setIsEditModalOpen,
+}) => (
+  <form onSubmit={onSubmit} className="space-y-6">
+    <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
+      <div className="text-sm text-gray-500 mb-4">
+        {mode === "add" ? "Creating a new reward" : "Updating reward details"}
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Title
+        </label>
+        <input
+          type="text"
+          required
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        {errors.title && (
+          <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+        )}
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Description
+        </label>
+        <textarea
+          required
+          rows={4}
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Describe the reward details, conditions, exclusions, etc."
+        />
+        {errors.description && (
+          <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+        )}
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Image
+        </label>
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          accept="image/*"
+          onChange={handleImageChange}
+        />
+        {errors.image && (
+          <p className="text-red-500 text-sm mt-1">{errors.image}</p>
+        )}
+        {image && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-500">Selected file: {image.name}</p>
+          </div>
+        )}
+        {currentReward?.image && !image && mode === "edit" && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-500">Current image:</p>
+            <img
+              src={currentReward.image}
+              alt={currentReward.title}
+              className="mt-1 h-20 w-auto object-cover rounded-md"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
+      <h3 className="text-lg font-medium text-gray-800 mb-4">Reward Details</h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Points Required
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              required
+              min="1"
+              className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+              value={pointsRequired}
+              onChange={(e) => setPointsRequired(Number(e.target.value))}
+            />
+          </div>
+          {errors.pointsRequired && (
+            <p className="text-red-500 text-sm mt-1">{errors.pointsRequired}</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Category
+          </label>
+          <select
+            required
+            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">Select a category</option>
+            {availableCategories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          {errors.category && (
+            <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Conditional fields based on selected category */}
+      {category === "Discount" && (
+        <div className="mb-5">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Discount Percentage
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              required
+              min="1"
+              max="100"
+              className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+              value={discountPercentage}
+              onChange={(e) => setDiscountPercentage(Number(e.target.value))}
+            />
+            <span className="absolute right-3 top-3 text-gray-500">%</span>
+          </div>
+          {errors.discountPercentage && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.discountPercentage}
+            </p>
+          )}
+        </div>
+      )}
+
+      {category === "Gift" && (
+        <div className="mb-5">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Select Event
+          </label>
+          <select
+            required
+            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+            value={eventId}
+            onChange={(e) => setEventId(e.target.value)}
+          >
+            <option value="">Select an event</option>
+            {events.map((event) => (
+              <option key={event.id} value={event.id}>
+                {event.title}
+              </option>
+            ))}
+          </select>
+          {errors.eventId && (
+            <p className="text-red-500 text-sm mt-1">{errors.eventId}</p>
+          )}
+        </div>
+      )}
+    </div>
+
+    <div className="flex justify-end space-x-4 mt-8">
+      <button
+        type="button"
+        onClick={() =>
+          mode === "add" ? setIsAddModalOpen(false) : setIsEditModalOpen(false)
+        }
+        className="px-6 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        className="px-6 py-3 bg-turquoise-600 text-white rounded-md hover:bg-turquoise-700 transition-colors flex items-center"
+      >
+        {mode === "add" ? (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Add Reward
+          </>
+        ) : (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Update Reward
+          </>
+        )}
+      </button>
+    </div>
+  </form>
+);
+
 const RewardsManagement: React.FC = () => {
   // State for rewards data
   const [rewards, setRewards] = useState<Reward[]>([]);
@@ -287,241 +558,6 @@ const RewardsManagement: React.FC = () => {
     setIsDeleteDialogOpen(false);
   };
 
-  // Reward Form component for both add and edit
-  const RewardForm = ({
-    onSubmit,
-    mode,
-  }: {
-    onSubmit: (e: React.FormEvent) => void;
-    mode: "add" | "edit";
-  }) => (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
-        <div className="text-sm text-gray-500 mb-4">
-          {mode === "add" ? "Creating a new reward" : "Updating reward details"}
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Title
-          </label>
-          <input
-            type="text"
-            required
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          {errors.title && (
-            <p className="text-red-500 text-sm mt-1">{errors.title}</p>
-          )}
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description
-          </label>
-          <textarea
-            required
-            rows={4}
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the reward details, conditions, exclusions, etc."
-          />
-          {errors.description && (
-            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-          )}
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Image
-          </label>
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-          {errors.image && (
-            <p className="text-red-500 text-sm mt-1">{errors.image}</p>
-          )}
-          {image && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-500">
-                Selected file: {image.name}
-              </p>
-            </div>
-          )}
-          {currentReward?.image && !image && mode === "edit" && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-500">Current image:</p>
-              <img
-                src={currentReward.image}
-                alt={currentReward.title}
-                className="mt-1 h-20 w-auto object-cover rounded-md"
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
-        <h3 className="text-lg font-medium text-gray-800 mb-4">
-          Reward Details
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Points Required
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                required
-                min="1"
-                className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-                value={pointsRequired}
-                onChange={(e) => setPointsRequired(Number(e.target.value))}
-              />
-            </div>
-            {errors.pointsRequired && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.pointsRequired}
-              </p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
-            </label>
-            <select
-              required
-              className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="">Select a category</option>
-              {availableCategories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-            {errors.category && (
-              <p className="text-red-500 text-sm mt-1">{errors.category}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Conditional fields based on selected category */}
-        {category === "Discount" && (
-          <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Discount Percentage
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                required
-                min="1"
-                max="100"
-                className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-                value={discountPercentage}
-                onChange={(e) => setDiscountPercentage(Number(e.target.value))}
-              />
-              <span className="absolute right-3 top-3 text-gray-500">%</span>
-            </div>
-            {errors.discountPercentage && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.discountPercentage}
-              </p>
-            )}
-          </div>
-        )}
-
-        {category === "Gift" && (
-          <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select Event
-            </label>
-            <select
-              required
-              className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-              value={eventId}
-              onChange={(e) => setEventId(e.target.value)}
-            >
-              <option value="">Select an event</option>
-              {events.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.title}
-                </option>
-              ))}
-            </select>
-            {errors.eventId && (
-              <p className="text-red-500 text-sm mt-1">{errors.eventId}</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-end space-x-4 mt-8">
-        <button
-          type="button"
-          onClick={() =>
-            mode === "add"
-              ? setIsAddModalOpen(false)
-              : setIsEditModalOpen(false)
-          }
-          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-6 py-3 bg-turquoise-600 text-white rounded-md hover:bg-turquoise-700 transition-colors flex items-center"
-        >
-          {mode === "add" ? (
-            <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Add Reward
-            </>
-          ) : (
-            <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Update Reward
-            </>
-          )}
-        </button>
-      </div>
-    </form>
-  );
-
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -729,7 +765,31 @@ const RewardsManagement: React.FC = () => {
         onClose={() => setIsAddModalOpen(false)}
         title="Add New Reward"
       >
-        <RewardForm onSubmit={handleAddReward} mode="add" />
+        <RewardForm
+          onSubmit={handleAddReward}
+          mode="add"
+          title={title}
+          setTitle={setTitle}
+          description={description}
+          setDescription={setDescription}
+          pointsRequired={pointsRequired}
+          setPointsRequired={setPointsRequired}
+          category={category}
+          setCategory={setCategory}
+          image={image}
+          handleImageChange={handleImageChange}
+          discountPercentage={discountPercentage}
+          setDiscountPercentage={setDiscountPercentage}
+          eventId={eventId}
+          setEventId={setEventId}
+          errors={errors}
+          currentReward={currentReward}
+          fileInputRef={fileInputRef}
+          availableCategories={availableCategories}
+          events={events}
+          setIsAddModalOpen={setIsAddModalOpen}
+          setIsEditModalOpen={setIsEditModalOpen}
+        />
       </Modal>
 
       {/* Modal for Edit Reward */}
@@ -738,7 +798,31 @@ const RewardsManagement: React.FC = () => {
         onClose={() => setIsEditModalOpen(false)}
         title="Edit Reward"
       >
-        <RewardForm onSubmit={handleEditReward} mode="edit" />
+        <RewardForm
+          onSubmit={handleEditReward}
+          mode="edit"
+          title={title}
+          setTitle={setTitle}
+          description={description}
+          setDescription={setDescription}
+          pointsRequired={pointsRequired}
+          setPointsRequired={setPointsRequired}
+          category={category}
+          setCategory={setCategory}
+          image={image}
+          handleImageChange={handleImageChange}
+          discountPercentage={discountPercentage}
+          setDiscountPercentage={setDiscountPercentage}
+          eventId={eventId}
+          setEventId={setEventId}
+          errors={errors}
+          currentReward={currentReward}
+          fileInputRef={fileInputRef}
+          availableCategories={availableCategories}
+          events={events}
+          setIsAddModalOpen={setIsAddModalOpen}
+          setIsEditModalOpen={setIsEditModalOpen}
+        />
       </Modal>
 
       {/* Modal for Reward Details */}

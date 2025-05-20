@@ -11,6 +11,186 @@ import {
   useActivateEventMutation,
 } from "../../services/EVENT-API";
 
+// Move EventForm component outside EventsManagement
+const EventForm = ({
+  event,
+  setEvent,
+  onSubmit,
+  mode,
+  handleImageChange,
+  imageFile,
+  fileInputRef,
+  onCancel,
+}: {
+  event: Omit<Event, "id">;
+  setEvent: React.Dispatch<React.SetStateAction<Omit<Event, "id">>>;
+  onSubmit: (e: React.FormEvent) => void;
+  mode: "add" | "edit";
+  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  imageFile: File | null;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  onCancel: () => void;
+}) => (
+  <form onSubmit={onSubmit} className="space-y-6">
+    <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
+      <div className="text-sm text-gray-500 mb-4">
+        {mode === "add" ? "Creating a new event" : "Updating event details"}
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Title
+        </label>
+        <input
+          type="text"
+          required
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={event.title}
+          onChange={(e) =>
+            setEvent((prev) => ({ ...prev, title: e.target.value }))
+          }
+        />
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Description
+        </label>
+        <textarea
+          required
+          rows={4}
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={event.description}
+          onChange={(e) =>
+            setEvent((prev) => ({ ...prev, description: e.target.value }))
+          }
+        />
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Location
+        </label>
+        <input
+          type="text"
+          required
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={event.location}
+          onChange={(e) =>
+            setEvent((prev) => ({ ...prev, location: e.target.value }))
+          }
+        />
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Date
+        </label>
+        <input
+          type="date"
+          required
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={event.date.toISOString().split("T")[0]}
+          onChange={(e) =>
+            setEvent((prev) => ({ ...prev, date: new Date(e.target.value) }))
+          }
+        />
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Time
+        </label>
+        <input
+          type="time"
+          required
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={event.time}
+          onChange={(e) =>
+            setEvent((prev) => ({ ...prev, time: e.target.value }))
+          }
+        />
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Price
+        </label>
+        <input
+          type="number"
+          required
+          min="0"
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={event.price}
+          onChange={(e) =>
+            setEvent((prev) => ({ ...prev, price: Number(e.target.value) }))
+          }
+        />
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Image
+        </label>
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          accept="image/*"
+          onChange={handleImageChange}
+        />
+        {imageFile && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-500">
+              Selected file: {imageFile.name}
+            </p>
+          </div>
+        )}
+        {mode === "edit" && event.image && !imageFile && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-500">Current image:</p>
+            <img
+              src={event.image}
+              alt={event.title}
+              className="mt-1 h-20 w-auto object-cover rounded-md"
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="mb-5">
+        <label className="flex items-center space-x-3">
+          <input
+            type="checkbox"
+            className="form-checkbox h-5 w-5 text-turquoise-600"
+            checked={event.isActive}
+            onChange={(e) =>
+              setEvent((prev) => ({ ...prev, isActive: e.target.checked }))
+            }
+          />
+          <span className="text-gray-700">Active</span>
+        </label>
+      </div>
+    </div>
+
+    <div className="flex justify-end space-x-4">
+      <button
+        type="button"
+        onClick={onCancel}
+        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-turquoise-500"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        className="px-4 py-2 text-sm font-medium text-white bg-turquoise-600 border border-transparent rounded-md hover:bg-turquoise-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-turquoise-500"
+      >
+        {mode === "add" ? "Add Event" : "Update Event"}
+      </button>
+    </div>
+  </form>
+);
+
 const EventsManagement = () => {
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [isEditEventModalOpen, setIsEditEventModalOpen] = useState(false);
@@ -214,181 +394,6 @@ const EventsManagement = () => {
       </div>
     );
   }
-
-  const EventForm = ({
-    event,
-    setEvent,
-    onSubmit,
-    mode,
-  }: {
-    event: Omit<Event, "id">;
-    setEvent: React.Dispatch<React.SetStateAction<Omit<Event, "id">>>;
-    onSubmit: (e: React.FormEvent) => void;
-    mode: "add" | "edit";
-  }) => (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
-        <div className="text-sm text-gray-500 mb-4">
-          {mode === "add" ? "Creating a new event" : "Updating event details"}
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Title
-          </label>
-          <input
-            type="text"
-            required
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={event.title}
-            onChange={(e) =>
-              setEvent((prev) => ({ ...prev, title: e.target.value }))
-            }
-          />
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description
-          </label>
-          <textarea
-            required
-            rows={4}
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={event.description}
-            onChange={(e) =>
-              setEvent((prev) => ({ ...prev, description: e.target.value }))
-            }
-          />
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Location
-          </label>
-          <input
-            type="text"
-            required
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={event.location}
-            onChange={(e) =>
-              setEvent((prev) => ({ ...prev, location: e.target.value }))
-            }
-          />
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date
-          </label>
-          <input
-            type="date"
-            required
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={event.date.toISOString().split("T")[0]}
-            onChange={(e) =>
-              setEvent((prev) => ({ ...prev, date: new Date(e.target.value) }))
-            }
-          />
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Time
-          </label>
-          <input
-            type="time"
-            required
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={event.time}
-            onChange={(e) =>
-              setEvent((prev) => ({ ...prev, time: e.target.value }))
-            }
-          />
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Price
-          </label>
-          <input
-            type="number"
-            required
-            min="0"
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={event.price}
-            onChange={(e) =>
-              setEvent((prev) => ({ ...prev, price: Number(e.target.value) }))
-            }
-          />
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Image
-          </label>
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-          {imageFile && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-500">
-                Selected file: {imageFile.name}
-              </p>
-            </div>
-          )}
-          {mode === "edit" && event.image && !imageFile && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-500">Current image:</p>
-              <img
-                src={event.image}
-                alt={event.title}
-                className="mt-1 h-20 w-auto object-cover rounded-md"
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="mb-5">
-          <label className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              className="form-checkbox h-5 w-5 text-turquoise-600"
-              checked={event.isActive}
-              onChange={(e) =>
-                setEvent((prev) => ({ ...prev, isActive: e.target.checked }))
-              }
-            />
-            <span className="text-gray-700">Active</span>
-          </label>
-        </div>
-      </div>
-
-      <div className="flex justify-end space-x-4">
-        <button
-          type="button"
-          onClick={() =>
-            mode === "add"
-              ? setIsAddEventModalOpen(false)
-              : setIsEditEventModalOpen(false)
-          }
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-turquoise-500"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-turquoise-600 border border-transparent rounded-md hover:bg-turquoise-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-turquoise-500"
-        >
-          {mode === "add" ? "Add Event" : "Update Event"}
-        </button>
-      </div>
-    </form>
-  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -628,6 +633,10 @@ const EventsManagement = () => {
           setEvent={setNewEvent}
           onSubmit={handleAddEvent}
           mode="add"
+          handleImageChange={handleImageChange}
+          imageFile={imageFile}
+          fileInputRef={fileInputRef}
+          onCancel={() => setIsAddEventModalOpen(false)}
         />
       </Modal>
 
@@ -659,6 +668,10 @@ const EventsManagement = () => {
             }}
             onSubmit={handleEditEvent}
             mode="edit"
+            handleImageChange={handleImageChange}
+            imageFile={imageFile}
+            fileInputRef={fileInputRef}
+            onCancel={() => setIsEditEventModalOpen(false)}
           />
         )}
       </Modal>

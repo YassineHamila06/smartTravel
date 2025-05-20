@@ -11,6 +11,340 @@ import {
   useUpdateTripMutation,
 } from "../../services/TRIP-API";
 
+// Define TripFormData type outside both components
+type TripFormData = Partial<Trip> & {
+  destination: string;
+  startDate: string;
+  endDate: string;
+  price: number;
+  isAvailable: boolean;
+  reduction: number;
+  image?: any;
+  description: string;
+  tripType: string;
+};
+
+// TripForm component moved outside TripsManagement
+const TripForm = ({
+  trip,
+  setTrip,
+  onSubmit,
+  mode,
+  tripImage,
+  errors = {},
+  handleImageChange,
+  fileInputRef,
+  onCancel,
+}: {
+  trip: TripFormData;
+  setTrip: React.Dispatch<React.SetStateAction<any>>;
+  onSubmit: (e: React.FormEvent) => void;
+  mode: "add" | "edit";
+  tripImage?: File | null;
+  errors: Record<string, string>;
+  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  onCancel: () => void;
+}) => (
+  <form onSubmit={onSubmit} className="space-y-6">
+    <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
+      <div className="text-sm text-gray-500 mb-4">
+        {mode === "add"
+          ? "Creating a new destination"
+          : "Updating destination details"}
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Trip Type
+        </label>
+        <select
+          required
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={trip.tripType}
+          onChange={(e) =>
+            setTrip((prev: any) => ({ ...prev, tripType: e.target.value }))
+          }
+        >
+          <option value="Beach destination">Beach destination</option>
+          <option value="Cultural tour">Cultural tour</option>
+          <option value="Adventure travel">Adventure travel</option>
+          <option value="Nature escape">Nature escape</option>
+          <option value="City break">City break</option>
+          <option value="Luxury travel">Luxury travel</option>
+          <option value="Budget travel">Budget travel</option>
+          <option value="Wellness retreat">Wellness retreat</option>
+          <option value="Family vacation">Family vacation</option>
+        </select>
+        {errors.tripType && (
+          <p className="text-red-500 text-sm mt-1">{errors.tripType}</p>
+        )}
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Destination
+        </label>
+        <input
+          type="text"
+          required
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={trip.destination}
+          onChange={(e) =>
+            setTrip((prev: any) => ({ ...prev, destination: e.target.value }))
+          }
+        />
+        {errors.destination && (
+          <p className="text-red-500 text-sm mt-1">{errors.destination}</p>
+        )}
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Description
+        </label>
+        <textarea
+          required
+          rows={4}
+          className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+          value={trip.description}
+          onChange={(e) =>
+            setTrip((prev: any) => ({ ...prev, description: e.target.value }))
+          }
+          placeholder="Describe the trip details, attractions, accommodations, etc."
+        />
+        {errors.description && (
+          <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+        )}
+      </div>
+
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Image
+        </label>
+
+        <div className="space-y-4">
+          {tripImage ? (
+            <div className="flex items-center space-x-3">
+              <div className="text-sm text-gray-600 flex-1 truncate">
+                {tripImage.name}
+              </div>
+              <button
+                type="button"
+                className="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                onClick={() =>
+                  setTrip((prev: any) => ({ ...prev, image: null }))
+                }
+              >
+                Remove
+              </button>
+            </div>
+          ) : null}
+
+          <input
+            type="file"
+            name="image"
+            ref={fileInputRef}
+            accept="image/*"
+            className="block w-full px-3 py-2 text-sm text-gray-700 
+            border border-gray-300 rounded-md shadow-sm
+            focus:outline-none focus:ring-turquoise-500 focus:border-turquoise-500"
+            onChange={handleImageChange}
+          />
+        </div>
+
+        {!tripImage && errors.image && (
+          <p className="text-red-500 text-sm mt-1">{errors.image}</p>
+        )}
+      </div>
+    </div>
+
+    <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
+      <h3 className="text-lg font-medium text-gray-800 mb-4">Trip Details</h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Start Date
+          </label>
+          <input
+            type="date"
+            required={mode === "add"}
+            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+            value={
+              trip.startDate
+                ? new Date(trip.startDate).toISOString().split("T")[0]
+                : ""
+            }
+            onChange={(e) =>
+              setTrip((prev: any) => ({ ...prev, startDate: e.target.value }))
+            }
+          />
+          {errors.startDate && (
+            <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            End Date
+          </label>
+          <input
+            type="date"
+            required={mode === "add"}
+            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+            value={
+              trip.endDate
+                ? new Date(trip.endDate).toISOString().split("T")[0]
+                : ""
+            }
+            onChange={(e) =>
+              setTrip((prev: any) => ({ ...prev, endDate: e.target.value }))
+            }
+          />
+          {errors.endDate && (
+            <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Price ($)
+          </label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+              $
+            </span>
+            <input
+              type="number"
+              required
+              min="0"
+              className="block w-full pl-8 px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+              value={trip.price}
+              onChange={(e) =>
+                setTrip((prev: any) => ({
+                  ...prev,
+                  price: Number(e.target.value),
+                }))
+              }
+            />
+          </div>
+          {errors.price && (
+            <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Reduction (%)
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              required
+              min="0"
+              max="100"
+              className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
+              value={trip.reduction}
+              onChange={(e) =>
+                setTrip((prev: any) => ({
+                  ...prev,
+                  reduction: Number(e.target.value),
+                }))
+              }
+            />
+            <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
+              %
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Availability
+        </label>
+        <div className="flex space-x-4 mt-2">
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              className="form-radio h-5 w-5 text-turquoise-600"
+              name="availability"
+              value="true"
+              checked={trip.isAvailable}
+              onChange={() =>
+                setTrip((prev: any) => ({ ...prev, isAvailable: true }))
+              }
+            />
+            <span className="ml-2 text-gray-700">Available</span>
+          </label>
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              className="form-radio h-5 w-5 text-red-600"
+              name="availability"
+              value="false"
+              checked={!trip.isAvailable}
+              onChange={() =>
+                setTrip((prev: any) => ({ ...prev, isAvailable: false }))
+              }
+            />
+            <span className="ml-2 text-gray-700">Not Available</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div className="flex justify-end space-x-4 mt-8">
+      <button
+        type="button"
+        onClick={onCancel}
+        className="px-6 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        className="px-6 py-3 bg-turquoise-600 text-white rounded-md hover:bg-turquoise-700 transition-colors flex items-center"
+      >
+        {mode === "add" ? (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Add Trip
+          </>
+        ) : (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Update Trip
+          </>
+        )}
+      </button>
+    </div>
+  </form>
+);
+
 const TripsManagement = () => {
   const [isAddTripModalOpen, setIsAddTripModalOpen] = useState(false);
   const [isEditTripModalOpen, setIsEditTripModalOpen] = useState(false);
@@ -54,38 +388,6 @@ const TripsManagement = () => {
     image: "",
     description: "",
     tripType: "Beach destination",
-  });
-
-  const filteredTrips = tripsData.filter((trip: Trip) => {
-    if (
-      filters.destination &&
-      !trip.destination
-        .toLowerCase()
-        .includes(filters.destination.toLowerCase()) &&
-      !trip.description
-        .toLowerCase()
-        .includes(filters.destination.toLowerCase())
-    )
-      return false;
-    if (filters.minPrice && trip.price < Number(filters.minPrice)) return false;
-    if (filters.maxPrice && trip.price > Number(filters.maxPrice)) return false;
-    if (
-      filters.startDate &&
-      new Date(trip.startDate) < new Date(filters.startDate)
-    )
-      return false;
-    if (filters.endDate && new Date(trip.endDate) > new Date(filters.endDate))
-      return false;
-    if (
-      filters.availability !== "all" &&
-      trip.isAvailable !== (filters.availability === "available")
-    )
-      return false;
-    if (filters.minReduction && trip.reduction < Number(filters.minReduction))
-      return false;
-    if (filters.maxReduction && trip.reduction > Number(filters.maxReduction))
-      return false;
-    return true;
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,332 +557,37 @@ const TripsManagement = () => {
     );
   }
 
-  // Fix the type errors with proper typing
-  type TripFormData = Partial<Trip> & {
-    destination: string;
-    startDate: string;
-    endDate: string;
-    price: number;
-    isAvailable: boolean;
-    reduction: number;
-    image?: any;
-    description: string;
-    tripType: string;
-  };
-
-  const TripForm = ({
-    trip,
-    setTrip,
-    onSubmit,
-    mode,
-    tripImage,
-  }: {
-    trip: TripFormData;
-    setTrip: React.Dispatch<React.SetStateAction<TripFormData>>;
-    onSubmit: (e: React.FormEvent) => void;
-    mode: "add" | "edit";
-    tripImage?: File | null;
-  }) => (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
-        <div className="text-sm text-gray-500 mb-4">
-          {mode === "add"
-            ? "Creating a new destination"
-            : "Updating destination details"}
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Trip Type
-          </label>
-          <select
-            required
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={trip.tripType}
-            onChange={(e) =>
-              setTrip((prev) => ({ ...prev, tripType: e.target.value }))
-            }
-          >
-            <option value="Beach destination">Beach destination</option>
-            <option value="Cultural tour">Cultural tour</option>
-            <option value="Adventure travel">Adventure travel</option>
-            <option value="Nature escape">Nature escape</option>
-            <option value="City break">City break</option>
-            <option value="Luxury travel">Luxury travel</option>
-            <option value="Budget travel">Budget travel</option>
-            <option value="Wellness retreat">Wellness retreat</option>
-            <option value="Family vacation">Family vacation</option>
-          </select>
-          {errors.tripType && (
-            <p className="text-red-500 text-sm mt-1">{errors.tripType}</p>
-          )}
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Destination
-          </label>
-          <input
-            type="text"
-            required
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={trip.destination}
-            onChange={(e) =>
-              setTrip((prev) => ({ ...prev, destination: e.target.value }))
-            }
-          />
-          {errors.destination && (
-            <p className="text-red-500 text-sm mt-1">{errors.destination}</p>
-          )}
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description
-          </label>
-          <textarea
-            required
-            rows={4}
-            className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-            value={trip.description}
-            onChange={(e) =>
-              setTrip((prev) => ({ ...prev, description: e.target.value }))
-            }
-            placeholder="Describe the trip details, attractions, accommodations, etc."
-          />
-          {errors.description && (
-            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-          )}
-        </div>
-
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Image
-          </label>
-
-          <div className="space-y-4">
-            {tripImage ? (
-              <div className="flex items-center space-x-3">
-                <div className="text-sm text-gray-600 flex-1 truncate">
-                  {tripImage.name}
-                </div>
-                <button
-                  type="button"
-                  className="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                  onClick={() => setTripImage(null)}
-                >
-                  Remove
-                </button>
-              </div>
-            ) : null}
-
-            <input
-              type="file"
-              name="image"
-              ref={fileInputRef}
-              accept="image/*"
-              className="block w-full px-3 py-2 text-sm text-gray-700 
-              border border-gray-300 rounded-md shadow-sm
-              focus:outline-none focus:ring-turquoise-500 focus:border-turquoise-500"
-              onChange={handleImageChange}
-            />
-          </div>
-
-          {!tripImage && errors.image && (
-            <p className="text-red-500 text-sm mt-1">{errors.image}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-r from-turquoise-50 to-white p-5 rounded-lg shadow-sm mb-6">
-        <h3 className="text-lg font-medium text-gray-800 mb-4">Trip Details</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Start Date
-            </label>
-            <input
-              type="date"
-              required={mode === "add"}
-              className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-              value={
-                trip.startDate
-                  ? new Date(trip.startDate).toISOString().split("T")[0]
-                  : ""
-              }
-              onChange={(e) =>
-                setTrip((prev) => ({ ...prev, startDate: e.target.value }))
-              }
-            />
-            {errors.startDate && (
-              <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              End Date
-            </label>
-            <input
-              type="date"
-              required={mode === "add"}
-              className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-              value={
-                trip.endDate
-                  ? new Date(trip.endDate).toISOString().split("T")[0]
-                  : ""
-              }
-              onChange={(e) =>
-                setTrip((prev) => ({ ...prev, endDate: e.target.value }))
-              }
-            />
-            {errors.endDate && (
-              <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Price ($)
-            </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                $
-              </span>
-              <input
-                type="number"
-                required
-                min="0"
-                className="block w-full pl-8 px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-                value={trip.price}
-                onChange={(e) =>
-                  setTrip((prev) => ({
-                    ...prev,
-                    price: Number(e.target.value),
-                  }))
-                }
-              />
-            </div>
-            {errors.price && (
-              <p className="text-red-500 text-sm mt-1">{errors.price}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Reduction (%)
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                required
-                min="0"
-                max="100"
-                className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:border-turquoise-500 focus:ring focus:ring-turquoise-200 focus:ring-opacity-50 transition-all"
-                value={trip.reduction}
-                onChange={(e) =>
-                  setTrip((prev) => ({
-                    ...prev,
-                    reduction: Number(e.target.value),
-                  }))
-                }
-              />
-              <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                %
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Availability
-          </label>
-          <div className="flex space-x-4 mt-2">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                className="form-radio h-5 w-5 text-turquoise-600"
-                name="availability"
-                value="true"
-                checked={trip.isAvailable}
-                onChange={() =>
-                  setTrip((prev) => ({ ...prev, isAvailable: true }))
-                }
-              />
-              <span className="ml-2 text-gray-700">Available</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                className="form-radio h-5 w-5 text-red-600"
-                name="availability"
-                value="false"
-                checked={!trip.isAvailable}
-                onChange={() =>
-                  setTrip((prev) => ({ ...prev, isAvailable: false }))
-                }
-              />
-              <span className="ml-2 text-gray-700">Not Available</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end space-x-4 mt-8">
-        <button
-          type="button"
-          onClick={() =>
-            mode === "add"
-              ? setIsAddTripModalOpen(false)
-              : setIsEditTripModalOpen(false)
-          }
-          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-6 py-3 bg-turquoise-600 text-white rounded-md hover:bg-turquoise-700 transition-colors flex items-center"
-        >
-          {mode === "add" ? (
-            <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Add Trip
-            </>
-          ) : (
-            <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Update Trip
-            </>
-          )}
-        </button>
-      </div>
-    </form>
-  );
+  const filteredTrips = tripsData.filter((trip: Trip) => {
+    if (
+      filters.destination &&
+      !trip.destination
+        .toLowerCase()
+        .includes(filters.destination.toLowerCase()) &&
+      !trip.description
+        .toLowerCase()
+        .includes(filters.destination.toLowerCase())
+    )
+      return false;
+    if (filters.minPrice && trip.price < Number(filters.minPrice)) return false;
+    if (filters.maxPrice && trip.price > Number(filters.maxPrice)) return false;
+    if (
+      filters.startDate &&
+      new Date(trip.startDate) < new Date(filters.startDate)
+    )
+      return false;
+    if (filters.endDate && new Date(trip.endDate) > new Date(filters.endDate))
+      return false;
+    if (
+      filters.availability !== "all" &&
+      trip.isAvailable !== (filters.availability === "available")
+    )
+      return false;
+    if (filters.minReduction && trip.reduction < Number(filters.minReduction))
+      return false;
+    if (filters.maxReduction && trip.reduction > Number(filters.maxReduction))
+      return false;
+    return true;
+  });
 
   return (
     <div className="p-6">
@@ -841,12 +848,14 @@ const TripsManagement = () => {
       >
         <TripForm
           trip={newTrip as TripFormData}
-          setTrip={
-            setNewTrip as React.Dispatch<React.SetStateAction<TripFormData>>
-          }
+          setTrip={setNewTrip}
           onSubmit={handleAddTrip}
           mode="add"
           tripImage={tripImage}
+          errors={errors}
+          handleImageChange={handleImageChange}
+          fileInputRef={fileInputRef}
+          onCancel={() => setIsAddTripModalOpen(false)}
         />
       </Modal>
 
@@ -858,14 +867,14 @@ const TripsManagement = () => {
         {selectedTrip && (
           <TripForm
             trip={selectedTrip as TripFormData}
-            setTrip={
-              setSelectedTrip as unknown as React.Dispatch<
-                React.SetStateAction<TripFormData>
-              >
-            }
+            setTrip={setSelectedTrip}
             onSubmit={handleEditTrip}
             mode="edit"
             tripImage={tripImage}
+            errors={errors}
+            handleImageChange={handleImageChange}
+            fileInputRef={fileInputRef}
+            onCancel={() => setIsEditTripModalOpen(false)}
           />
         )}
       </Modal>

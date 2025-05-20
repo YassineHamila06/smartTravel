@@ -141,17 +141,17 @@ const CommunityManagement = () => {
                 <div className="flex items-start space-x-4">
                   <img
                     src={
-                      post.user.profileImage ||
+                      post.user?.profileImage ||
                       "https://i.pravatar.cc/150?img=10"
                     }
-                    alt={post.user.name}
+                    alt={post.user?.name || "Unknown User"}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-sm font-medium text-gray-900">
-                          {post.user.name}
+                          {post.user?.name || "Unknown User"  }
                         </h3>
                         <p className="text-sm text-gray-500">
                           {formatDate(post.createdAt)}

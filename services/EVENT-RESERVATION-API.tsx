@@ -66,8 +66,8 @@ export const API_EVENT_RESERVATION = createApi({
   endpoints: (builder) => ({
     getEventReservations: builder.query<EventReservation[], void>({
       query: () => "/get",
-      transformResponse: (response: { data: BackendEventReservation[] }) =>
-        transformBackendReservations(response.data),
+      transformResponse: (response: { reservations: BackendEventReservation[] }) =>
+        transformBackendReservations(response.reservations),      
       providesTags: ["EventReservation"],
     }),
 
