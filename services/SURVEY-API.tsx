@@ -206,6 +206,14 @@ export const API_SURVEY = createApi({
       },
       providesTags: ["Survey"],
     }),
+    completeSurvey: builder.mutation<Survey, string>({
+      query: (surveyId) => ({
+        url: `/complete/${surveyId}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Survey"],
+    }),
+    
 
     createSurvey: builder.mutation<Survey, Partial<Survey>>({
       query: (surveyData) => ({
@@ -284,4 +292,5 @@ export const {
   useGetSurveyResponsesQuery,
   useSubmitResponseMutation,
   usePublishSurveyMutation,
+  useCompleteSurveyMutation,
 } = API_SURVEY;

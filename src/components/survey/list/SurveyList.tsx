@@ -4,6 +4,8 @@ import { Plus, FileText, Edit, Trash2, BarChart2 } from "lucide-react";
 import {
   useGetSurveysQuery,
   useDeleteSurveyMutation,
+  usePublishSurveyMutation,
+  useCompleteSurveyMutation,
 } from "../../../../services/SURVEY-API";
 
 const SurveyList: React.FC = () => {
@@ -14,6 +16,9 @@ const SurveyList: React.FC = () => {
     refetch,
   } = useGetSurveysQuery();
   const [deleteSurvey] = useDeleteSurveyMutation();
+  const [publishSurvey] = usePublishSurveyMutation();
+  const [completeSurvey] = useCompleteSurveyMutation();
+
   const navigate = useNavigate();
 
   console.log("SurveyList rendering with data:", surveys);
@@ -41,6 +46,22 @@ const SurveyList: React.FC = () => {
         console.error("Error deleting survey:", error);
         alert("Failed to delete survey. Please try again.");
       }
+    }
+  };
+  const handleUpdateStatus = async (
+    id: string,
+    newStatus: "published" | "completed"
+  ) => {
+    try {
+      if (newStatus === "published") {
+        await publishSurvey(id).unwrap();
+      } else {
+        await completeSurvey(id).unwrap();
+      }
+      refetch();
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      alert("Failed to update status.");
     }
   };
 
@@ -114,7 +135,7 @@ const SurveyList: React.FC = () => {
                     survey.status.slice(1)}
                 </span>
               </div>
-              <div className="mt-4 flex space-x-3">
+              <div className="mt-4 flex flex-wrap gap-3 items-center">
                 <button
                   onClick={() => handleViewResponses(survey.id)}
                   className="text-blue-600 hover:text-blue-800 flex items-center transition-colors duration-200"
@@ -122,6 +143,7 @@ const SurveyList: React.FC = () => {
                   <BarChart2 size={16} className="mr-1" />
                   View Responses
                 </button>
+
                 <button
                   onClick={() => handleEditSurvey(survey.id)}
                   className="text-gray-600 hover:text-gray-800 flex items-center transition-colors duration-200"
@@ -129,6 +151,7 @@ const SurveyList: React.FC = () => {
                   <Edit size={16} className="mr-1" />
                   Edit Survey
                 </button>
+
                 <button
                   onClick={() => handleDeleteSurvey(survey.id)}
                   className="text-red-600 hover:text-red-800 flex items-center transition-colors duration-200"
@@ -136,6 +159,30 @@ const SurveyList: React.FC = () => {
                   <Trash2 size={16} className="mr-1" />
                   Delete Survey
                 </button>
+
+                {/* ✅ Edit Status Dropdown */}
+                <div className="flex items-center space-x-2">
+                  <label
+                    htmlFor={`status-${survey.id}`}
+                    className="text-sm text-gray-600"
+                  >
+                    Edit Status:
+                  </label>
+                  <select
+                    id={`status-${survey.id}`}
+                    value={survey.status}
+                    onChange={(e) =>
+                      handleUpdateStatus(
+                        survey.id,
+                        e.target.value as "published" | "completed"
+                      )
+                    }
+                    className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none"
+                  >
+                    <option value="published">Published</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
               </div>
             </div>
           ))

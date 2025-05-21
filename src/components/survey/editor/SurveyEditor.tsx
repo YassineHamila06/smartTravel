@@ -256,16 +256,10 @@ const SurveyEditor: React.FC<SurveyEditorProps> = ({
     return true;
   };
 
-  // Handle survey publish/save
+  // Handle survey save
   const handleSaveAsDraft = () => {
     if (validateSurvey()) {
       onSave({ ...survey, status: "draft" });
-    }
-  };
-
-  const handlePublish = () => {
-    if (validateSurvey()) {
-      onSave({ ...survey, status: "published" });
     }
   };
 
@@ -466,13 +460,6 @@ const SurveyEditor: React.FC<SurveyEditorProps> = ({
           className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
         >
           Save as Draft
-        </button>
-        <button
-          type="button"
-          onClick={handlePublish}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Publish
         </button>
       </div>
     </div>
