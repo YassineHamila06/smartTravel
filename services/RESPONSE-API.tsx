@@ -248,6 +248,42 @@ export const API_RESPONSE = createApi({
         "Response",
       ],
     }),
+    getResponsesBySurvey: builder.query<Response[], string>({
+      query: (surveyId) => `/get-by-survey/${surveyId}`,
+      transformResponse: (response: unknown) => {
+        if (
+          !response ||
+          typeof response !== "object" ||
+          !("data" in response) ||
+          !Array.isArray((response as any).data.responses)
+        ) {
+          console.error("Unexpected response format:", response);
+          return [];
+        }
+    
+        try {
+          return (response as { data: { responses: unknown[] } }).data.responses.map(
+            (responseData: unknown) => {
+              const backendResponse = assertBackendResponse(responseData);
+              return {
+                id: backendResponse._id || backendResponse.id || "",
+                questionId: backendResponse.questionId,
+                userId: backendResponse.userId,
+                value: backendResponse.value,
+                answeredAt: backendResponse.answeredAt,
+              };
+            }
+          );
+        } catch (error) {
+          console.error("Error transforming responses by survey:", error);
+          return [];
+        }
+      },
+      providesTags: (_result, _error, surveyId) => [
+        { type: "Response", id: `survey-${surveyId}` },
+        "Response",
+      ],
+    }),
   }),
 });
 
@@ -259,4 +295,5 @@ export const {
   useCreateResponseMutation,
   useUpdateResponseMutation,
   useDeleteResponseMutation,
+  useGetResponsesBySurveyQuery,
 } = API_RESPONSE;

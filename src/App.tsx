@@ -14,8 +14,7 @@ import RewardsManagement from "./components/RewardsManagement";
 import { SurveyProvider } from "./components/SurveyContext";
 import SurveyManagement from "./components/surveyPages/SurveyManagement";
 import SurveyEditorPage from "./components/surveyPages/SurveyEditorPage";
-import SurveyResponsesPage from "./components/surveyPages/SurveyResponsesPage";
-import SurveyAnalytics from "./components/surveyPages/SurveyAnalytics";
+import SurveyResponsesPage from "./components/survey/responses/SurveyResponsesPage";
 import { AuthProvider, ProtectedRoute } from "./contexts/AuthContext";
 import React, { ReactNode } from "react";
 
@@ -167,17 +166,6 @@ function App() {
                 <ProtectedRoute>
                   <DashboardLayout>
                     <SurveyResponsesPage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/analytics/:id"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <SurveyAnalytics />
                   </DashboardLayout>
                 </ProtectedRoute>
               }
