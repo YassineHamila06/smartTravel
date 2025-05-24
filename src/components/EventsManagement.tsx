@@ -190,6 +190,23 @@ const EventForm = ({
     </div>
   </form>
 );
+const validateEventForm = (event: Omit<Event, "id">): string | null => {
+  if (!event.title.trim()) return "Title is required.";
+  if (!event.description.trim()) return "Description is required.";
+  if (!event.location.trim()) return "Location is required.";
+  if (!/^[a-zA-Z\sÀ-ÿ]+$/.test(event.location)) return "Location must contain only letters.";
+
+  if (!event.price || event.price <= 0) return "Price must be greater than 0.";
+  if (event.price > 9999) return "Price must not exceed 9999.";
+
+  const today = new Date();
+  if (!event.date || new Date(event.date) <= today) return "Date must be in the future.";
+
+  if (!event.time.trim()) return "Time is required.";
+
+  return null;
+};
+
 
 const EventsManagement = () => {
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
@@ -262,24 +279,26 @@ const EventsManagement = () => {
 
   const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
+  
+    const error = validateEventForm(newEvent);
+    if (error) {
+      alert(error);
+      return;
+    }
+  
     try {
       const formData = new FormData();
       formData.append("title", newEvent.title);
       formData.append("description", newEvent.description);
-
-      // Append image file instead of image URL
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
-
+      if (imageFile) formData.append("image", imageFile);
       formData.append("location", newEvent.location);
       formData.append("date", newEvent.date.toISOString());
       formData.append("time", newEvent.time);
       formData.append("price", String(newEvent.price));
       formData.append("isActive", String(newEvent.isActive));
-
+  
       await createEvent(formData).unwrap();
-
+  
       setIsAddEventModalOpen(false);
       setImageFile(null);
       setNewEvent({
@@ -297,32 +316,34 @@ const EventsManagement = () => {
       alert("Failed to add event. Please try again.");
     }
   };
+  
 
   const handleEditEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEvent) return;
-
+  
+    const error = validateEventForm(selectedEvent);
+    if (error) {
+      alert(error);
+      return;
+    }
+  
     try {
       const formData = new FormData();
       formData.append("title", selectedEvent.title);
       formData.append("description", selectedEvent.description);
-
-      // Append image file if available, otherwise keep existing image
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
-
+      if (imageFile) formData.append("image", imageFile);
       formData.append("location", selectedEvent.location);
       formData.append("date", new Date(selectedEvent.date).toISOString());
       formData.append("time", selectedEvent.time);
       formData.append("price", String(selectedEvent.price));
       formData.append("isActive", String(selectedEvent.isActive));
-
+  
       await updateEvent({
         id: selectedEvent.id,
         data: formData,
       }).unwrap();
-
+  
       setIsEditEventModalOpen(false);
       setImageFile(null);
       setSelectedEvent(null);
@@ -331,6 +352,7 @@ const EventsManagement = () => {
       alert("Failed to update event. Please try again.");
     }
   };
+  
 
   const handleDeleteEvent = async () => {
     if (!selectedEvent) return;

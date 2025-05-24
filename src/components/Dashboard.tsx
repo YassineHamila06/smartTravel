@@ -46,9 +46,13 @@ export default function Dashboard() {
       <h2 className="text-3xl font-bold">📊 Dashboard Overview</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        <div className="bg-white rounded shadow p-4">
+        <div className="bg-white rounded shadow p-4 md:col-span-1">
           <h3 className="text-lg font-semibold mb-2">User Registrations</h3>
           <RegisterChart data={stats?.registerOverTime} />
+        </div>
+        <div className="bg-white rounded shadow p-4 md:col-span-2 ">
+          <h3 className="text-lg font-semibold mb-2">Travel Preferences</h3>
+          <PreferencePieChart data={stats?.preferenceBreakdown} />
         </div>
 
         <div className="bg-white rounded shadow p-4 ">
@@ -56,17 +60,7 @@ export default function Dashboard() {
           <UserActivityChart data={stats?.userActivity} />
         </div>
 
-        <div className="bg-white rounded shadow p-4 md:col-span-1 ">
-          <h3 className="text-lg font-semibold mb-2">Travel Preferences</h3>
-          <PreferencePieChart data={stats?.preferenceBreakdown} />
-        </div>
-
-        <div className="bg-white rounded shadow p-4 md:col-span-2 xl:col-span-3">
-          <h3 className="text-lg font-semibold mb-2">Top Users by Points</h3>
-          <TopUsersBarChart data={stats?.topUsers} />
-        </div>
-
-        {/* Trip Stats */}
+        
         <div className="bg-white rounded shadow p-4 md:col-span-2 ">
           <h3 className="text-lg font-semibold mb-2">Trip Type Breakdown</h3>
           {loadingTrips ? (
@@ -81,8 +75,12 @@ export default function Dashboard() {
             />
           )}
         </div>
+        <div className="bg-white rounded shadow p-4 md:col-span-2 xl:col-span-3">
+          <h3 className="text-lg font-semibold mb-2">Top Users by Points</h3>
+          <TopUsersBarChart data={stats?.topUsers} />
+        </div>
 
-        <div className="bg-white rounded shadow p-4 md:col-span-2 ">
+        <div className="bg-white rounded shadow p-4 md:col-span-3 ">
           <h3 className="text-lg font-semibold mb-2">Reservations per day</h3>
           <ReservationsPerMonthBar data={reservationsPerDay} />
         </div>

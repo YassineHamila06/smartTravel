@@ -260,9 +260,6 @@ const EventsReservationsManagement = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Reservation ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Client Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -299,11 +296,6 @@ const EventsReservationsManagement = () => {
                     className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => handleReservationClick(reservation.id)}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        #{reservation.id}
-                      </div>
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {reservation.clientFirstName}{" "}
@@ -387,9 +379,6 @@ const EventsReservationsManagement = () => {
                 <div className="space-y-6">
                   {/* Reservation Info */}
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                      Reservation #{selectedReservationData.id}
-                    </h3>
                     <div className="bg-gradient-to-r from-turquoise-50 to-white p-4 rounded-lg">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>

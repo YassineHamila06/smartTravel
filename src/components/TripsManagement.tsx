@@ -398,22 +398,46 @@ const TripsManagement = () => {
 
   const validateForm = (trip: TripFormData) => {
     const newErrors: Record<string, string> = {};
-
-    if (!trip.destination.trim())
+    const now = new Date();
+  
+    // Destination: only letters and spaces allowed
+    if (!trip.destination.trim()) {
       newErrors.destination = "Destination is required";
-    if (!trip.description.trim())
+    } else if (!/^[a-zA-Z\sÀ-ÿ]+$/.test(trip.destination)) {
+      newErrors.destination = "Destination must contain only letters";
+    }
+  
+    if (!trip.description.trim()) {
       newErrors.description = "Description is required";
-    if (!trip.price || trip.price <= 0)
+    }
+  
+    // Price: must be > 0 and <= 9999
+    if (!trip.price || trip.price <= 0) {
       newErrors.price = "The price must be greater than 0";
-    if (!trip.startDate.trim()) newErrors.startDate = "Start date is required";
-    if (!trip.endDate || new Date(trip.endDate) <= new Date(trip.startDate))
+    } else if (trip.price > 9999) {
+      newErrors.price = "The price must not exceed 9999";
+    }
+  
+    // Start date: must be in the future
+    if (!trip.startDate.trim()) {
+      newErrors.startDate = "Start date is required";
+    } else if (new Date(trip.startDate) <= now) {
+      newErrors.startDate = "Start date must be in the future";
+    }
+  
+    // End date: must be after start date
+    if (!trip.endDate || new Date(trip.endDate) <= new Date(trip.startDate)) {
       newErrors.endDate = "End date must be after start date";
-    if (trip.tripType.trim() === "")
+    }
+  
+    if (trip.tripType.trim() === "") {
       newErrors.tripType = "Trip type is required";
-
+    }
+  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
   const handleAddTrip = async (e: React.FormEvent) => {
     e.preventDefault();
